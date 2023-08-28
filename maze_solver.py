@@ -78,7 +78,10 @@ class Cell:
             wall = Line(Point(x_nw, y_se), Point(x_se, y_se))
             self._win.draw_line(wall, "black")
 
-
+    def draw_move(self, to_cell, undo=False):
+        center = Point((self._x1 + self._x2)//2, (self._y1 + self._y2)//2)
+        new_center = Point((to_cell._x1 + to_cell._x2)//2, (to_cell._y1 + to_cell._y2)//2)
+        self._win.draw_line(Line(center, new_center), "red")
 
 def main():
     win = Window(800, 600)
@@ -90,6 +93,7 @@ def main():
     cell_b.draw(40, 20, 60, 40)
     cell_c = Cell(win)
     cell_c.draw(60, 40, 80, 60)
+    cell_a.draw_move(cell_b)
 
     win.wait_for_close()
 
