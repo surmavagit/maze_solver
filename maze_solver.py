@@ -48,13 +48,49 @@ class Line:
             )
         canvas.pack()
 
+class Cell:
+    def __init__(self, window):
+        self.has_west_wall = True
+        self.has_east_wall = True
+        self.has_north_wall = True
+        self.has_south_wall = True
+        self._x1 = 0
+        self._x2 = 0
+        self._y1 = 0
+        self._y2 = 0
+        self._win = window
+
+    def draw(self, x_nw, y_nw, x_se, y_se):
+        self._x1 = x_nw
+        self._y1 = y_nw
+        self._x2 = x_se
+        self._y2 = y_se
+        if self.has_west_wall:
+            wall = Line(Point(x_nw, y_nw), Point(x_nw, y_se))
+            self._win.draw_line(wall, "black")
+        if self.has_east_wall:
+            wall = Line(Point(x_se, y_nw), Point(x_se, y_se))
+            self._win.draw_line(wall, "black")
+        if self.has_north_wall:
+            wall = Line(Point(x_nw, y_nw), Point(x_se, y_nw))
+            self._win.draw_line(wall, "black")
+        if self.has_south_wall:
+            wall = Line(Point(x_nw, y_se), Point(x_se, y_se))
+            self._win.draw_line(wall, "black")
+
+
 
 def main():
     win = Window(800, 600)
-    point_A = Point(10, 30)
-    point_B = Point(200, 200)
-    line_one = Line(point_A, point_B)
-    win.draw_line(line_one, "red")
+    cell_a = Cell(win)
+    cell_a.has_east_wall = False
+    cell_a.draw(20, 20, 40, 40)
+    cell_b = Cell(win)
+    cell_b.has_west_wall = False
+    cell_b.draw(40, 20, 60, 40)
+    cell_c = Cell(win)
+    cell_c.draw(60, 40, 80, 60)
+
     win.wait_for_close()
 
 main()
