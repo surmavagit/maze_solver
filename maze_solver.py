@@ -66,18 +66,26 @@ class Cell:
         self._y1 = y_nw
         self._x2 = x_se
         self._y2 = y_se
+        west_wall = Line(Point(x_nw, y_nw), Point(x_nw, y_se))
+        east_wall = Line(Point(x_se, y_nw), Point(x_se, y_se))
+        north_wall = Line(Point(x_nw, y_nw), Point(x_se, y_nw))
+        south_wall = Line(Point(x_nw, y_se), Point(x_se, y_se))
+        west_wall_color = "white"
+        east_wall_color = "white"
+        north_wall_color = "white"
+        south_wall_color = "white"
         if self.has_west_wall:
-            wall = Line(Point(x_nw, y_nw), Point(x_nw, y_se))
-            self._win.draw_line(wall, "black")
+            west_wall_color = "black"
         if self.has_east_wall:
-            wall = Line(Point(x_se, y_nw), Point(x_se, y_se))
-            self._win.draw_line(wall, "black")
+            east_wall_color = "black"
         if self.has_north_wall:
-            wall = Line(Point(x_nw, y_nw), Point(x_se, y_nw))
-            self._win.draw_line(wall, "black")
+            north_wall_color = "black"
         if self.has_south_wall:
-            wall = Line(Point(x_nw, y_se), Point(x_se, y_se))
-            self._win.draw_line(wall, "black")
+            south_wall_color = "black"
+        self._win.draw_line(west_wall, west_wall_color)
+        self._win.draw_line(east_wall, east_wall_color )
+        self._win.draw_line(north_wall, north_wall_color )
+        self._win.draw_line(south_wall, south_wall_color )
 
     def draw_move(self, to_cell, undo=False):
         center = Point((self._x1 + self._x2)//2, (self._y1 + self._y2)//2)
@@ -133,11 +141,24 @@ class Maze:
         self.win.redraw()
         sleep(0.05)
 
-def main():
-    print("running main")
-    #win = Window(800, 600)
-    #maze = Maze(20, 20, 10, 10, 50, 50, win)
+    def _break_entrance_and_exit(self):
+        entrance_cell = self._cells[0][0]
+        entrance_cell.has_north_wall = False
+        if self.win is not None:
+            self._draw_cell(0, 0)
 
-    #win.wait_for_close()
+        exit_col = self._cells[len(self._cells) - 1]
+        exit_cell = exit_col[len(exit_col) - 1]
+        exit_cell.has_south_wall = False
+        if self.win is not None:
+            self._draw_cell(len(self._cells) - 1, len(exit_col) - 1)
+
+def main():
+    #print("running main")
+    win = Window(800, 600)
+    maze = Maze(20, 20, 10, 10, 50, 50, win)
+    maze._break_entrance_and_exit()
+
+    win.wait_for_close()
 
 main()
