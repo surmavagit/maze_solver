@@ -50,7 +50,7 @@ class Line:
         canvas.pack()
 
 class Cell:
-    def __init__(self, window):
+    def __init__(self, window = None):
         self.has_west_wall = True
         self.has_east_wall = True
         self.has_north_wall = True
@@ -96,7 +96,7 @@ class Maze:
             num_cols,
             cell_size_x,
             cell_size_y,
-            win
+            win = None
             ):
         self.x1 = x1
         self.y1 = y1
@@ -110,16 +110,17 @@ class Maze:
 
     def _create_cells(self):
         self._cells = []
-        for r in range(self.num_rows):
+        for c in range(self.num_cols):
             row = []
-            for c in range(self.num_cols):
+            for r in range(self.num_rows):
                 cell = Cell(self.win)
                 row.append(cell)
             self._cells.append(row)
 
-        for i in range(self.num_rows):
-            for j in range(self.num_cols):
-                self._draw_cell(i, j)
+        if self.win is not None:
+            for i in range(self.num_cols):
+                for j in range(self.num_rows):
+                    self._draw_cell(i, j)
 
     def _draw_cell(self, i, j):
         cell_y = self.y1 + i * self.cell_size_y
@@ -133,9 +134,10 @@ class Maze:
         sleep(0.05)
 
 def main():
-    win = Window(800, 600)
-    maze = Maze(20, 20, 10, 10, 50, 50, win)
+    print("running main")
+    #win = Window(800, 600)
+    #maze = Maze(20, 20, 10, 10, 50, 50, win)
 
-    win.wait_for_close()
+    #win.wait_for_close()
 
 main()
