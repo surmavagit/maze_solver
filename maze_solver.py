@@ -219,18 +219,46 @@ class Maze:
             for cell in col:
                 cell.visited = False
         
-        
-        
+    def solve(self):
+        return self.solve_r(0, 0)
+
+    def solve_r(self, i, j):
+        curr = self._cells[i][j]
+        self._animate()
+        curr.visited = True
+        if i == len(self._cells)-1 and j == len(self._cells[0])-1:
+            return True
+
+        directions = []
+        if i > 0 and not curr.has_west_wall:
+            directions.append([i-1, j])
+        if i < len(self._cells)-1 and not curr.has_east_wall:
+            directions.append([i+1, j])
+        if j > 0 and not curr.has_north_wall:
+            directions.append([i, j-1])
+        if j < len(self._cells[0])-1 and not curr.has_south_wall:
+            directions.append([i, j+1])
+
+        for direction in directions:
+            to_cell = self._cells[direction[0]][direction[1]]
+            if not to_cell.visited:
+                curr.draw_move(to_cell)
+                res = self.solve_r(direction[0], direction[1])
+                if res:
+                    return True
+                curr.draw_move(to_cell, undo=True)
+        return False
+
 
 
 def main():
-    print('running main')
-    #win = Window(800, 600)
-    #maze = Maze(20, 20, 10, 10, 50, 50, win, 10)
-    #maze._break_entrance_and_exit()
-    #maze._break_walls_r(0, 0)
-    #maze._reset_cells_visited()
+    win = Window(800, 600)
+    maze = Maze(20, 20, 10, 10, 50, 50, win, 20)
+    maze._break_entrance_and_exit()
+    maze._break_walls_r(0, 0)
+    maze._reset_cells_visited()
+    maze.solve()
 
-    #win.wait_for_close()
+    win.wait_for_close()
 
 main()
