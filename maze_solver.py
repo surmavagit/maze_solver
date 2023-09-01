@@ -1,12 +1,13 @@
 from tkinter import Tk, BOTH, Canvas
 from time import sleep
+import random
 
 class Window:
     def __init__(self, width, height):
         self.__root = Tk()
         self.__root.title("Maze Solver")
 
-        self.canvas = Canvas(self.__root, height=height, width=width)
+        self.canvas = Canvas(self.__root, height=height, width=width, bg="white")
         self.canvas.pack()
 
         self.running = False
@@ -60,6 +61,7 @@ class Cell:
         self._y1 = 0
         self._y2 = 0
         self._win = window
+        self.visited = False
 
     def draw(self, x_nw, y_nw, x_se, y_se):
         self._x1 = x_nw
@@ -104,8 +106,12 @@ class Maze:
             num_cols,
             cell_size_x,
             cell_size_y,
-            win = None
+            win = None,
+            seed = None
             ):
+        if seed is not None:
+            random.seed(seed)
+
         self.x1 = x1
         self.y1 = y1
         self.num_rows = num_rows
@@ -119,11 +125,11 @@ class Maze:
     def _create_cells(self):
         self._cells = []
         for c in range(self.num_cols):
-            row = []
+            column = []
             for r in range(self.num_rows):
                 cell = Cell(self.win)
-                row.append(cell)
-            self._cells.append(row)
+                column.append(cell)
+            self._cells.append(column)
 
         if self.win is not None:
             for i in range(self.num_cols):
@@ -131,8 +137,8 @@ class Maze:
                     self._draw_cell(i, j)
 
     def _draw_cell(self, i, j):
-        cell_y = self.y1 + i * self.cell_size_y
-        cell_x = self.x1 + j * self.cell_size_x
+        cell_y = self.y1 + j * self.cell_size_y
+        cell_x = self.x1 + i * self.cell_size_x
         self._cells[i][j].draw(cell_x, cell_y, cell_x + self.cell_size_x, cell_y + self.cell_size_y)
 
         self._animate()
@@ -153,11 +159,69 @@ class Maze:
         if self.win is not None:
             self._draw_cell(len(self._cells) - 1, len(exit_col) - 1)
 
+    def _break_walls_r(self, i, j):
+        self._cells[i][j].visited = True
+
+        ways = []
+        if i > 0 and self._cells[i-1][j].visited == False:
+            ways.append([i-1, j])
+        if j > 0 and self._cells[i][j-1].visited == False:
+            ways.append([i, j-1])
+        if i < self.num_cols - 1 and self._cells[i+1][j].visited == False:
+            ways.append([i+1, j])
+        if j < self.num_rows - 1 and self._cells[i][j+1].visited == False:
+            ways.append([i, j+1])
+        
+        if len(ways) == 0:
+            self._draw_cell(i, j)
+            return
+
+        while len(ways) > 0:
+            new_ways = []
+            for n in range(0, len(ways)):
+                way_i = ways[n][0]
+                way_j = ways[n][1]
+                if self._cells[way_i][way_j].visited == False:
+                    new_ways.append(ways[n])
+            ways = new_ways
+            
+            if len(ways) == 0:
+                self._draw_cell(i, j)
+                return
+        
+            chosen_way = None
+            if len(ways) == 1:
+                chosen_way = ways[0]
+            else:
+                chosen_way = ways[random.randrange(0, len(ways))]
+            
+            if chosen_way[0] == i+1:
+                self._cells[i][j].has_east_wall = False
+                self._cells[i + 1][j].has_west_wall = False
+            elif chosen_way[0] == i-1:
+                self._cells[i][j].has_west_wall = False
+                self._cells[i - 1][j].has_east_wall = False
+            elif chosen_way[1] == j+1:
+                self._cells[i][j].has_south_wall = False
+                self._cells[i][j + 1].has_north_wall = False
+            elif chosen_way[1] == j-1:
+                self._cells[i][j].has_north_wall = False
+                self._cells[i][j - 1].has_south_wall = False
+            else:
+                print(f'Error: i is {i} j is {j}')
+
+            self._draw_cell(i, j)
+            self._break_walls_r(chosen_way[0], chosen_way[1])
+        
+        
+        
+
+
 def main():
-    #print("running main")
     win = Window(800, 600)
-    maze = Maze(20, 20, 10, 10, 50, 50, win)
+    maze = Maze(20, 20, 10, 10, 50, 50, win, 10)
     maze._break_entrance_and_exit()
+    maze._break_walls_r(0, 0)
 
     win.wait_for_close()
 
