@@ -137,11 +137,12 @@ class Maze:
                     self._draw_cell(i, j)
 
     def _draw_cell(self, i, j):
-        cell_y = self.y1 + j * self.cell_size_y
-        cell_x = self.x1 + i * self.cell_size_x
-        self._cells[i][j].draw(cell_x, cell_y, cell_x + self.cell_size_x, cell_y + self.cell_size_y)
+        if self.win is not None:
+            cell_y = self.y1 + j * self.cell_size_y
+            cell_x = self.x1 + i * self.cell_size_x
+            self._cells[i][j].draw(cell_x, cell_y, cell_x + self.cell_size_x, cell_y + self.cell_size_y)
 
-        self._animate()
+            self._animate()
 
     def _animate(self):
         self.win.redraw()
@@ -212,17 +213,24 @@ class Maze:
 
             self._draw_cell(i, j)
             self._break_walls_r(chosen_way[0], chosen_way[1])
+
+    def _reset_cells_visited(self):
+        for col in self._cells:
+            for cell in col:
+                cell.visited = False
         
         
         
 
 
 def main():
-    win = Window(800, 600)
-    maze = Maze(20, 20, 10, 10, 50, 50, win, 10)
-    maze._break_entrance_and_exit()
-    maze._break_walls_r(0, 0)
+    print('running main')
+    #win = Window(800, 600)
+    #maze = Maze(20, 20, 10, 10, 50, 50, win, 10)
+    #maze._break_entrance_and_exit()
+    #maze._break_walls_r(0, 0)
+    #maze._reset_cells_visited()
 
-    win.wait_for_close()
+    #win.wait_for_close()
 
 main()
